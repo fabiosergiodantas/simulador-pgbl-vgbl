@@ -10,10 +10,4 @@ export const SIDEBAR_LINKS = [
       { label: 'Overview', icon: IconChartBar, link: PATH_DASHBOARD.default },
     ],
   },
-  {
-    title: 'Raw data',
-    links: [
-      { label: 'Data', icon: IconTable, link: PATH_DASHBOARD.rawData },
-    ],
-  }
 ];
