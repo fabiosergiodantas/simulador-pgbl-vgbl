@@ -12,8 +12,10 @@ import {
   Switch
 } from '@mantine/core';
 import { IconTrendingUp, IconChartLine } from '@tabler/icons-react';
-import Chart from 'react-apexcharts';
+import dynamic from 'next/dynamic';
 import { ApexOptions } from 'apexcharts';
+
+const Chart = dynamic(() => import('react-apexcharts'), { ssr: false });
 import { 
   SimulationInput, 
   gerarDadosEvolucao, 
