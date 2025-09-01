@@ -76,9 +76,9 @@ export function ComparisonTable({ className }: ComparisonTableProps) {
       category: 'Limite de Contribuição',
       icon: <IconShield size={16} />,
       pgbl: {
-        value: 'Limitado para dedução (12% da renda bruta anual)',
-        positive: false,
-        description: 'Apenas contribuições até 12% da renda bruta anual são dedutíveis do IR. O excedente não gera benefício fiscal.',
+        value: 'Não há limite de contribuição, mas o benefício fiscal é limitado',
+        positive: true,
+        description: 'Você pode contribuir qualquer valor, mas apenas até 12% da sua renda bruta anual é dedutível do IR. O excedente não gera benefício fiscal.',
       },
       vgbl: {
         value: 'Sem limite',

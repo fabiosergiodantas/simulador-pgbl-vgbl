@@ -31,7 +31,7 @@ const Logo = ({ href, showText = true, ...others }: LogoProps) => {
         >
           <IconPigMoney size={showText ? 20 : 16} />
         </ThemeIcon>
-        {showText && <Text fw={700}>Simulador Previdência</Text>}
+        {showText && <Text fw={700}>Internato Financeiro</Text>}
       </Group>
     </UnstyledButton>
   );
