@@ -1,87 +1,117 @@
 'use client';
 
+import { useState } from 'react';
+
 import {
+  Box,
   Container,
+  Divider,
   Grid,
-  PaperProps,
+  Group,
   Stack,
+  Text,
+  ThemeIcon,
+  Title
 } from '@mantine/core';
+import { IconCalculator, IconPigMoney } from '@tabler/icons-react';
 
-import {
-  MobileDesktopChart,
-  PageHeader,
-  RevenueChart,
-  SalesChart,
-  StatsGrid,
-  TextInsightsGrid,
-} from '@/components';
-import { useFetchData } from '@/hooks';
-
-const PAPER_PROPS: PaperProps = {
-  p: 'md',
-  style: { minHeight: '100%' },
-};
+import { ComparisonTable } from '@/components/ComparisonTable/ComparisonTable';
+import { EvolutionChart } from '@/components/EvolutionChart/EvolutionChart';
+import { SimulationResults } from '@/components/SimulationResults/SimulationResults';
+import { SimulatorForm } from '@/components/SimulatorForm/SimulatorForm';
+import { 
+  SimulationInput, 
+  SimulationResult, 
+  simularPGBLvsVGBL 
+} from '@/utils/pgblVgblCalculator';
 
 export default function HomePage() {
-  const {
-    data: statsData,
-    error: statsError,
-    loading: statsLoading,
-  } = useFetchData('/mocks/StatsGrid.json');
-  const {
-    data: textInsightsData,
-    error: textInsightsError,
-    loading: textInsightsLoading,
-  } = useFetchData('/mocks/TextInsights.json');
+  const [simulationResult, setSimulationResult] = useState<SimulationResult | null>(null);
+  const [currentInput, setCurrentInput] = useState<SimulationInput | null>(null);
+  const [loading, setLoading] = useState(false);
 
+  const handleSimulate = async (input: SimulationInput) => {
+    setLoading(true);
+    
+    // Simular um pequeno delay para melhor UX
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    try {
+      const result = simularPGBLvsVGBL(input);
+      setSimulationResult(result);
+      setCurrentInput(input);
+    } catch (error) {
+      console.error('Erro na simulação:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <>
-      <>
-        <title>Dashboard</title>
-        <meta
-          name="description"
-          content="Manus Analytics Dashboard"
-        />
-      </>
-      <Container fluid>
-        <Stack gap="lg">
-          <PageHeader title="Overview" withActions={true} />
-          
-          {/* Hero Chart Section - Lead with Sales Chart */}
-          <Grid gutter={{ base: 5, xs: 'sm', md: 'md', xl: 'lg' }}>
-            <Grid.Col span={{ base: 12, md: 6 }}>
-              <SalesChart {...PAPER_PROPS} />
-            </Grid.Col>
-            <Grid.Col span={{ base: 12, md: 6 }}>
-              <MobileDesktopChart {...PAPER_PROPS} />
-            </Grid.Col>
-          </Grid>
+      <title>Simulador PGBL vs VGBL - Previdência Privada</title>
+      <meta
+        name="description"
+        content="Simulador para comparar PGBL e VGBL e descobrir qual modalidade de previdência privada é mais vantajosa para o seu perfil"
+      />
+      
+      <Container size="xl" py="xl">
+        <Stack gap="xl">
+          {/* Header */}
+          <Box ta="center">
+            <Group justify="center" gap="md" mb="md">
+              <ThemeIcon size="xl" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }}>
+                <IconPigMoney size={32} />
+              </ThemeIcon>
+              <Title order={1} size="h1">
+                Simulador PGBL vs VGBL
+              </Title>
+            </Group>
+            
+            <Text size="lg" c="dimmed" maw={600} mx="auto">
+              Descubra qual modalidade de previdência privada é mais vantajosa para o seu perfil. 
+              Compare PGBL e VGBL considerando sua renda, contribuições e regime de tributação.
+            </Text>
+          </Box>
 
-          {/* Stats Grid Section */}
-          <StatsGrid
-            data={statsData.data}
-            loading={statsLoading}
-            error={statsError}
-            paperProps={PAPER_PROPS}
-          />
+          <Divider />
 
-          {/* Text Insights Section - Move up for better flow */}
-          <TextInsightsGrid
-            data={textInsightsData}
-            loading={textInsightsLoading}
-            error={textInsightsError}
-            paperProps={PAPER_PROPS}
-          />
+          {/* Tabela Comparativa */}
+          <ComparisonTable />
 
-          {/* Revenue Chart Section - Feature as finale */}
-          <Grid gutter={{ base: 5, xs: 'sm', md: 'md', xl: 'lg' }}>
-            <Grid.Col span={12}>
-              <RevenueChart {...PAPER_PROPS} />
-            </Grid.Col>
-          </Grid>
+          <Divider />
+
+          {/* Formulário */}
+          <SimulatorForm onSimulate={handleSimulate} loading={loading} />
+
+          {/* Resultados */}
+          {simulationResult && currentInput && (
+            <>
+              <Divider />
+              <Box>
+                <Group gap="sm" mb="lg">
+                  <IconCalculator size={24} />
+                  <Title order={2}>Resultados da Simulação</Title>
+                </Group>
+                
+                <Grid gutter="xl">
+                  <Grid.Col span={12}>
+                    <SimulationResults 
+                      result={simulationResult} 
+                      input={currentInput}
+                    />
+                  </Grid.Col>
+                  
+                  <Grid.Col span={12}>
+                    <EvolutionChart input={currentInput} />
+                  </Grid.Col>
+                </Grid>
+              </Box>
+            </>
+          )}
         </Stack>
       </Container>
     </>
   );
 }
+

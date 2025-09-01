@@ -123,7 +123,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={openSans.className}>
       <head>
-        <title>Manus Dashboard Template</title>
+        <title>Simulador PGBL vs VGBL - Previdência Privada</title>
         <link rel="icon" href="/favicon.ico" />
         <link rel="manifest" href="/site.webmanifest" />
         <meta
@@ -132,7 +132,7 @@ export default function RootLayout({
         />
         <meta
           name="description"
-          content="Explore our versatile dashboard website template featuring a stunning array of themes and meticulously crafted components. Elevate your web project with seamless integration, customizable themes, and a rich variety of components for a dynamic user experience. Effortlessly bring your data to life with our intuitive dashboard template, designed to streamline development and captivate users. Discover endless possibilities in design and functionality today!"
+          content="Simulador online gratuito para comparar PGBL e VGBL. Descubra qual modalidade de previdência privada é mais vantajosa para o seu perfil considerando sua renda, contribuições e regime de tributação. Calcule a economia fiscal e tome a melhor decisão para seu futuro financeiro."
         />
 
         <script

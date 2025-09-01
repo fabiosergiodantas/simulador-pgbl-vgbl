@@ -3,8 +3,9 @@ import {
   Text,
   UnstyledButton,
   UnstyledButtonProps,
+  ThemeIcon,
 } from '@mantine/core';
-import Image from 'next/image';
+import { IconPigMoney } from '@tabler/icons-react';
 import Link from 'next/link';
 
 import classes from './Logo.module.css';
@@ -23,14 +24,14 @@ const Logo = ({ href, showText = true, ...others }: LogoProps) => {
       {...others}
     >
       <Group gap="xs">
-        <Image
-          src="/logo.webp"
-          height={showText ? 32 : 24}
-          width={showText ? 32 : 24}
-          alt="design sparx logo"
-          className={classes.logoImage}
-        />
-        {showText && <Text fw={700}>Manus</Text>}
+        <ThemeIcon 
+          size={showText ? 32 : 24} 
+          variant="gradient" 
+          gradient={{ from: 'blue', to: 'cyan' }}
+        >
+          <IconPigMoney size={showText ? 20 : 16} />
+        </ThemeIcon>
+        {showText && <Text fw={700}>Simulador Previdência</Text>}
       </Group>
     </UnstyledButton>
   );
