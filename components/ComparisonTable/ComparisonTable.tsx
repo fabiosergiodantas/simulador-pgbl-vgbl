@@ -104,9 +104,9 @@ export function ComparisonTable({ className }: ComparisonTableProps) {
       category: 'Sucessão/Herança',
       icon: <IconInfoCircle size={16} />,
       pgbl: {
-        value: 'Entra no inventário',
-        positive: false,
-        description: 'Sujeito a impostos e custos'
+        value: 'Não entra no inventário',
+        positive: true,
+        description: 'Transmissão mais ágil aos beneficiários'
       },
       vgbl: {
         value: 'Não entra no inventário',

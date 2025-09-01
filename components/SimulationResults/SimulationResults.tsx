@@ -87,22 +87,22 @@ export function SimulationResults({ result, input }: SimulationResultsProps) {
 
             <Stack gap="xs">
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">Valor Acumulado Bruto:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">Valor Acumulado Bruto:</Text>
                 <Text size="sm" fw={500}>{formatarReal(result.pgbl.valorAcumuladoBruto)}</Text>
               </Group>
               
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">(-) Imposto no Resgate:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">(-) Imposto no Resgate:</Text>
                 <Text size="sm" c="red">{formatarReal(result.pgbl.impostoTotal)}</Text>
               </Group>
               
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">Valor Líquido:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">Valor Líquido:</Text>
                 <Text size="sm" fw={500}>{formatarReal(result.pgbl.valorAcumuladoLiquido)}</Text>
               </Group>
               
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">(+) Economia Fiscal Total:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">(+) Economia Fiscal Total:</Text>
                 <Text size="sm" c="green" fw={500}>{formatarReal(result.pgbl.economiaFiscalTotal)}</Text>
               </Group>
               
@@ -138,17 +138,17 @@ export function SimulationResults({ result, input }: SimulationResultsProps) {
 
             <Stack gap="xs">
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">Valor Acumulado Bruto:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">Valor Acumulado Bruto:</Text>
                 <Text size="sm" fw={500}>{formatarReal(result.vgbl.valorAcumuladoBruto)}</Text>
               </Group>
               
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">(-) Imposto sobre Rendimentos:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">(-) Imposto sobre Rendimentos:</Text>
                 <Text size="sm" c="red">{formatarReal(result.vgbl.impostoTotal)}</Text>
               </Group>
               
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">Economia Fiscal:</Text>
+                <Text size="sm" c="var(--mantine-color-text)">Economia Fiscal:</Text>
                 <Text size="sm" c="gray">Não aplicável</Text>
               </Group>
               
