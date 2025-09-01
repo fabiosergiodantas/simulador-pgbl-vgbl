@@ -5,9 +5,9 @@ import { PATH_DASHBOARD } from '@/routes';
 // Sidebar will only show the dashboard.
 export const SIDEBAR_LINKS = [
   {
-    title: 'Dashboard',
+    title: 'Calculadoras',
     links: [
-      { label: 'Overview', icon: IconChartBar, link: PATH_DASHBOARD.default },
+      { label: 'PGBL X VGBL', icon: IconChartBar, link: PATH_DASHBOARD.default },
     ],
   },
 ];
