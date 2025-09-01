@@ -76,9 +76,9 @@ export function ComparisonTable({ className }: ComparisonTableProps) {
       category: 'Limite de Contribuição',
       icon: <IconShield size={16} />,
       pgbl: {
-        value: 'Limitado para dedução (12%)',
+        value: 'Limitado para dedução (12% da renda bruta anual)',
         positive: false,
-        description: 'Excesso não gera benefício fiscal'
+        description: 'Apenas contribuições até 12% da renda bruta anual são dedutíveis do IR. O excedente não gera benefício fiscal.',
       },
       vgbl: {
         value: 'Sem limite',

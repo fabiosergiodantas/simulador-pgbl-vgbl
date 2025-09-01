@@ -97,7 +97,7 @@ function ThemeProvider({ children }: { children: React.ReactNode }) {
   return (
     <MantineProvider
       theme={dynamicTheme}
-      defaultColorScheme={config.appearance.colorScheme}
+      defaultColorScheme="light"
     >
       <DatesProvider
         settings={{
