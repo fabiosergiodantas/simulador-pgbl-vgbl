@@ -24,13 +24,13 @@ export interface SimulationResult {
   vantagem: number; // diferença em reais
 }
 
-// Tabela progressiva do IR (2024)
-const tabelaProgressiva = [
-  { min: 0, max: 24511.92, aliquota: 0 },
-  { min: 24511.93, max: 33919.80, aliquota: 0.075 },
-  { min: 33919.81, max: 45012.60, aliquota: 0.15 },
-  { min: 45012.61, max: 55976.16, aliquota: 0.225 },
-  { min: 55976.17, max: Infinity, aliquota: 0.275 }
+// Tabela progressiva do IR (2024) - Baseado em rendimento mensal
+const tabelaProgressivaIR = [
+  { limiteRendimento: 2428.80, aliquota: 0, parcelaDeduzir: 0 },
+  { limiteRendimento: 2826.65, aliquota: 0.075, parcelaDeduzir: 182.95 },
+  { limiteRendimento: 3751.05, aliquota: 0.15, parcelaDeduzir: 370.40 },
+  { limiteRendimento: 4664.68, aliquota: 0.225, parcelaDeduzir: 651.73 },
+  { limiteRendimento: Infinity, aliquota: 0.275, parcelaDeduzir: 884.96 }
 ];
 
 // Tabela regressiva para previdência
@@ -45,16 +45,26 @@ const tabelaRegressiva = [
 
 // Calcula o imposto pela tabela progressiva
 function calcularImpostoProgressivo(valor: number): number {
+  const rendaMensal = valor / 12; // Assumindo que o valor é anual para fins de cálculo de IR
   let imposto = 0;
-  
-  for (const faixa of tabelaProgressiva) {
-    if (valor > faixa.min) {
-      const baseCalculo = Math.min(valor, faixa.max) - faixa.min;
-      imposto += baseCalculo * faixa.aliquota;
+  let aliquotaAplicada = 0;
+  let parcelaDeduzir = 0;
+
+  for (const faixa of tabelaProgressivaIR) {
+    if (rendaMensal <= faixa.limiteRendimento) {
+      aliquotaAplicada = faixa.aliquota;
+      parcelaDeduzir = faixa.parcelaDeduzir;
+      break;
     }
   }
-  
-  return imposto;
+  // Se a renda for maior que a última faixa, usa a última alíquota e parcela a deduzir
+  if (aliquotaAplicada === 0 && rendaMensal > tabelaProgressivaIR[tabelaProgressivaIR.length - 2].limiteRendimento) {
+    aliquotaAplicada = tabelaProgressivaIR[tabelaProgressivaIR.length - 1].aliquota;
+    parcelaDeduzir = tabelaProgressivaIR[tabelaProgressivaIR.length - 1].parcelaDeduzir;
+  }
+
+  imposto = (rendaMensal * aliquotaAplicada) - parcelaDeduzir;
+  return Math.max(0, imposto * 12); // Retorna o imposto anual, garantindo que não seja negativo
 }
 
 // Calcula o imposto pela tabela regressiva
@@ -107,7 +117,10 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   // Cálculo do PGBL
   let impostoTotalPGBL: number;
   if (regimeTributacao === 'progressivo') {
-    impostoTotalPGBL = calcularImpostoProgressivo(valorAcumuladoBruto);
+    // Para PGBL, o imposto é sobre o valor total acumulado, mas a alíquota é da renda marginal
+    // A economia fiscal é calculada com base na alíquota marginal da renda bruta anual do usuário
+    // O imposto sobre o resgate do PGBL é sobre o valor total, mas a alíquota aplicada é a da faixa de renda do usuário
+    impostoTotalPGBL = valorAcumuladoBruto * calcularAliquotaMarginal(rendaBrutaAnual);
   } else {
     impostoTotalPGBL = calcularImpostoRegressivo(valorAcumuladoBruto, prazoAnos);
   }
@@ -120,7 +133,8 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   
   let impostoTotalVGBL: number;
   if (regimeTributacao === 'progressivo') {
-    impostoTotalVGBL = calcularImpostoProgressivo(rendimentos);
+    // Para VGBL, o imposto é sobre os rendimentos, e a alíquota aplicada é a da faixa de renda do usuário
+    impostoTotalVGBL = rendimentos * calcularAliquotaMarginal(rendaBrutaAnual);
   } else {
     impostoTotalVGBL = calcularImpostoRegressivo(rendimentos, prazoAnos);
   }
@@ -150,14 +164,15 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   };
 }
 
-// Calcula a alíquota marginal do IR para uma renda
-function calcularAliquotaMarginal(renda: number): number {
-  for (const faixa of tabelaProgressiva) {
-    if (renda >= faixa.min && renda <= faixa.max) {
+// Calcula a alíquota marginal do IR para uma renda anual
+function calcularAliquotaMarginal(rendaAnual: number): number {
+  const rendaMensal = rendaAnual / 12;
+  for (const faixa of tabelaProgressivaIR) {
+    if (rendaMensal <= faixa.limiteRendimento) {
       return faixa.aliquota;
     }
   }
-  return 0.275; // alíquota máxima
+  return 0.275; // Alíquota máxima caso não se encaixe em nenhuma faixa (acima de 4664.68)
 }
 
 // Função para gerar dados para gráfico de evolução
