@@ -17,8 +17,10 @@ import { IconCalculator, IconPigMoney } from '@tabler/icons-react';
 
 import { ComparisonTable } from '@/components/ComparisonTable/ComparisonTable';
 import { EvolutionChart } from '@/components/EvolutionChart/EvolutionChart';
+import { FinancialIndicators } from '@/components/FinancialIndicators/FinancialIndicators';
 import { SimulationResults } from '@/components/SimulationResults/SimulationResults';
 import { SimulatorForm } from '@/components/SimulatorForm/SimulatorForm';
+import { TaxationExplanation } from '@/components/TaxationExplanation/TaxationExplanation';
 import { 
   SimulationInput, 
   SimulationResult, 
@@ -109,6 +111,14 @@ export default function HomePage() {
               </Box>
             </>
           )}
+
+          <Divider my="xl" />
+          
+          <TaxationExplanation />
+
+          <Divider my="xl" />
+          
+          <FinancialIndicators />
         </Stack>
       </Container>
     </>
