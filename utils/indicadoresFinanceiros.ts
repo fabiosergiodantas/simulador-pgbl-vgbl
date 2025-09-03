@@ -28,25 +28,8 @@ export const indicadoresFinanceiros: IndicadorFinanceiro[] = [
       { ano: 2021, valor: 4.40 },
       { ano: 2022, valor: 12.39 },
       { ano: 2023, valor: 12.25 },
-      { ano: 2024, valor: 10.88 }
-    ]
-  },
-  {
-    nome: 'Sistema Especial de Liquidação e Custódia',
-    sigla: 'SELIC',
-    tipo: 'taxa',
-    descricao: 'Taxa básica de juros da economia brasileira',
-    dadosHistoricos: [
-      { ano: 2015, valor: 13.75 },
-      { ano: 2016, valor: 14.25 },
-      { ano: 2017, valor: 10.25 },
-      { ano: 2018, valor: 6.50 },
-      { ano: 2019, valor: 6.00 },
-      { ano: 2020, valor: 2.00 },
-      { ano: 2021, valor: 4.50 },
-      { ano: 2022, valor: 12.75 },
-      { ano: 2023, valor: 12.25 },
-      { ano: 2024, valor: 10.75 }
+      { ano: 2024, valor: 10.88 },
+      { ano: 2025, valor: 9.15 } // Acumulado até agosto/2025
     ]
   },
   {
@@ -64,7 +47,8 @@ export const indicadoresFinanceiros: IndicadorFinanceiro[] = [
       { ano: 2021, valor: 10.06 },
       { ano: 2022, valor: 5.79 },
       { ano: 2023, valor: 4.62 },
-      { ano: 2024, valor: 4.83 }
+      { ano: 2024, valor: 4.83 },
+      { ano: 2025, valor: 3.26 } // Acumulado até julho/2025
     ]
   },
   {
@@ -82,7 +66,8 @@ export const indicadoresFinanceiros: IndicadorFinanceiro[] = [
       { ano: 2021, valor: 17.78 },
       { ano: 2022, valor: 11.64 },
       { ano: 2023, valor: -4.57 },
-      { ano: 2024, valor: 4.11 }
+      { ano: 2024, valor: 4.11 },
+      { ano: 2025, valor: -1.35 } // Acumulado até agosto/2025
     ]
   },
   {
@@ -100,7 +85,8 @@ export const indicadoresFinanceiros: IndicadorFinanceiro[] = [
       { ano: 2021, valor: 2.92 },
       { ano: 2022, valor: 7.90 },
       { ano: 2023, valor: 8.20 },
-      { ano: 2024, valor: 7.40 }
+      { ano: 2024, valor: 7.40 },
+      { ano: 2025, valor: 8.07 } // Estimativa baseada na média dos primeiros 8 meses
     ]
   },
   {
@@ -118,7 +104,8 @@ export const indicadoresFinanceiros: IndicadorFinanceiro[] = [
       { ano: 2021, valor: -11.93 },
       { ano: 2022, valor: 4.69 },
       { ano: 2023, valor: 21.17 },
-      { ano: 2024, valor: -10.36 }
+      { ano: 2024, valor: -10.36 },
+      { ano: 2025, valor: 7.85 } // Estimativa baseada na performance até agosto/2025
     ]
   }
 ];

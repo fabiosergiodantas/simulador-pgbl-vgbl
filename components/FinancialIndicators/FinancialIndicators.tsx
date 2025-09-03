@@ -26,8 +26,7 @@ import {
 
 import { 
   indicadoresFinanceiros, 
-  calcularMediaIndicador,
-  obterSugestoesRentabilidade 
+  calcularMediaIndicador
 } from '@/utils/indicadoresFinanceiros';
 
 interface FinancialIndicatorsProps {
@@ -37,10 +36,8 @@ interface FinancialIndicatorsProps {
 export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
   const [periodoSelecionado, setPeriodoSelecionado] = useState<string>('5');
   
-  const anoAtual = 2024;
+  const anoAtual = 2025;
   const anoInicio = anoAtual - parseInt(periodoSelecionado) + 1;
-  
-  const sugestoes = obterSugestoesRentabilidade();
 
   const getTrendIcon = (valor: number) => {
     if (valor > 0) return <IconTrendingUp size={14} color="green" />;
@@ -74,15 +71,15 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
             value={periodoSelecionado}
             onChange={(value) => setPeriodoSelecionado(value || '5')}
             data={[
-              { value: '5', label: 'Últimos 5 anos (2020-2024)' },
-              { value: '10', label: 'Últimos 10 anos (2015-2024)' }
+              { value: '5', label: 'Últimos 5 anos (2021-2025)' },
+              { value: '10', label: 'Últimos 10 anos (2016-2025)' }
             ]}
             w={250}
           />
         </Group>
 
         <Grid>
-          <Grid.Col span={{ base: 12, md: 8 }}>
+          <Grid.Col span={{ base: 12, md: 12 }}>
             <Box style={{ overflowX: 'auto' }}>
               <Table striped highlightOnHover withTableBorder>
                 <Table.Thead>
@@ -90,17 +87,17 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
                     <Table.Th>Indicador</Table.Th>
                     <Table.Th>Tipo</Table.Th>
                     <Table.Th>Média do Período</Table.Th>
+                    <Table.Th>2025</Table.Th>
                     <Table.Th>2024</Table.Th>
                     <Table.Th>2023</Table.Th>
-                    <Table.Th>2022</Table.Th>
                   </Table.Tr>
                 </Table.Thead>
                 <Table.Tbody>
                   {indicadoresFinanceiros.map((indicador) => {
                     const media = calcularMediaIndicador(indicador.sigla, anoInicio, anoAtual);
+                    const dados2025 = indicador.dadosHistoricos.find(d => d.ano === 2025)?.valor || 0;
                     const dados2024 = indicador.dadosHistoricos.find(d => d.ano === 2024)?.valor || 0;
                     const dados2023 = indicador.dadosHistoricos.find(d => d.ano === 2023)?.valor || 0;
-                    const dados2022 = indicador.dadosHistoricos.find(d => d.ano === 2022)?.valor || 0;
 
                     return (
                       <Table.Tr key={indicador.sigla}>
@@ -132,6 +129,14 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
                         </Table.Td>
                         <Table.Td>
                           <Group gap="xs">
+                            {getTrendIcon(dados2025)}
+                            <Text size="sm" c={getTrendColor(dados2025)}>
+                              {dados2025.toFixed(2)}%
+                            </Text>
+                          </Group>
+                        </Table.Td>
+                        <Table.Td>
+                          <Group gap="xs">
                             {getTrendIcon(dados2024)}
                             <Text size="sm" c={getTrendColor(dados2024)}>
                               {dados2024.toFixed(2)}%
@@ -146,14 +151,6 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
                             </Text>
                           </Group>
                         </Table.Td>
-                        <Table.Td>
-                          <Group gap="xs">
-                            {getTrendIcon(dados2022)}
-                            <Text size="sm" c={getTrendColor(dados2022)}>
-                              {dados2022.toFixed(2)}%
-                            </Text>
-                          </Group>
-                        </Table.Td>
                       </Table.Tr>
                     );
                   })}
@@ -161,73 +158,13 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
               </Table>
             </Box>
           </Grid.Col>
-
-          <Grid.Col span={{ base: 12, md: 4 }}>
-            <Card withBorder>
-              <Stack gap="md">
-                <Group gap="xs">
-                  <ThemeIcon size="sm" color="blue" variant="light">
-                    <IconInfoCircle size={14} />
-                  </ThemeIcon>
-                  <Text fw={500} size="sm">Sugestões de Rentabilidade</Text>
-                </Group>
-
-                <Stack gap="sm">
-                  <Box>
-                    <Group justify="space-between">
-                      <Text size="sm">Conservador (80% CDI)</Text>
-                      <Badge color="green" variant="light">
-                        {sugestoes.conservador}% a.a.
-                      </Badge>
-                    </Group>
-                    <Text size="xs" c="dimmed">
-                      Para perfis mais conservadores
-                    </Text>
-                  </Box>
-
-                  <Box>
-                    <Group justify="space-between">
-                      <Text size="sm">Moderado (110% CDI)</Text>
-                      <Badge color="blue" variant="light">
-                        {sugestoes.moderado}% a.a.
-                      </Badge>
-                    </Group>
-                    <Text size="xs" c="dimmed">
-                      Para perfis equilibrados
-                    </Text>
-                  </Box>
-
-                  <Box>
-                    <Group justify="space-between">
-                      <Text size="sm">Arrojado (150% CDI)</Text>
-                      <Badge color="orange" variant="light">
-                        {sugestoes.arrojado}% a.a.
-                      </Badge>
-                    </Group>
-                    <Text size="xs" c="dimmed">
-                      Para perfis mais agressivos
-                    </Text>
-                  </Box>
-                </Stack>
-
-                <Divider />
-
-                <Box>
-                  <Text size="xs" c="dimmed">
-                    <strong>Dica:</strong> Use essas referências para definir 
-                    a rentabilidade esperada no simulador acima.
-                  </Text>
-                </Box>
-              </Stack>
-            </Card>
-          </Grid.Col>
         </Grid>
 
         <Box>
           <Title order={4} mb="sm">Sobre os Indicadores</Title>
           <Stack gap="xs">
             <Text size="sm">
-              <strong>CDI/Selic:</strong> Taxas de referência para investimentos de renda fixa
+              <strong>CDI:</strong> Taxa de referência para investimentos de renda fixa
             </Text>
             <Text size="sm">
               <strong>IPCA/IGP-M:</strong> Índices de inflação que impactam o poder de compra
@@ -239,6 +176,21 @@ export function FinancialIndicators({ className }: FinancialIndicatorsProps) {
               <strong>Ibovespa:</strong> Representa o desempenho das principais ações brasileiras
             </Text>
           </Stack>
+          
+          <Divider my="md" />
+          
+          <Box>
+            <Title order={5} mb="xs">Fontes Oficiais</Title>
+            <Text size="xs" c="dimmed">
+              <strong>CDI e Poupança:</strong> Banco Central do Brasil (Bacen) | 
+              <strong> IPCA:</strong> Instituto Brasileiro de Geografia e Estatística (IBGE) | 
+              <strong> IGP-M:</strong> Fundação Getúlio Vargas (FGV) | 
+              <strong> Ibovespa:</strong> B3 S.A. - Brasil, Bolsa, Balcão
+            </Text>
+            <Text size="xs" c="dimmed" mt="xs">
+              Dados atualizados até agosto/2025. Os valores de 2025 representam dados acumulados ou estimativas baseadas nos meses disponíveis.
+            </Text>
+          </Box>
         </Box>
       </Stack>
     </Paper>

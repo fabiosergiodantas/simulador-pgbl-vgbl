@@ -78,11 +78,6 @@ export default function HomePage() {
 
           <Divider />
 
-          {/* Tabela Comparativa */}
-          <ComparisonTable />
-
-          <Divider />
-
           {/* Formulário */}
           <SimulatorForm onSimulate={handleSimulate} loading={loading} />
 
@@ -111,6 +106,11 @@ export default function HomePage() {
               </Box>
             </>
           )}
+
+          <Divider />
+
+          {/* Tabela Comparativa */}
+          <ComparisonTable />
 
           <Divider my="xl" />
           

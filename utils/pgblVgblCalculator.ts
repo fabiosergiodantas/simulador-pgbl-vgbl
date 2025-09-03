@@ -26,8 +26,8 @@ export interface SimulationResult {
 
 // Tabela progressiva do IR (2024) - Baseado em rendimento mensal
 const tabelaProgressivaIR = [
-  { limiteRendimento: 2428.80, aliquota: 0, parcelaDeduzir: 0 },
-  { limiteRendimento: 2826.65, aliquota: 0.075, parcelaDeduzir: 182.95 },
+  { limiteRendimento: 2112.00, aliquota: 0, parcelaDeduzir: 0 },
+  { limiteRendimento: 2826.65, aliquota: 0.075, parcelaDeduzir: 158.40 },
   { limiteRendimento: 3751.05, aliquota: 0.15, parcelaDeduzir: 370.40 },
   { limiteRendimento: 4664.68, aliquota: 0.225, parcelaDeduzir: 651.73 },
   { limiteRendimento: Infinity, aliquota: 0.275, parcelaDeduzir: 884.96 }
@@ -46,18 +46,20 @@ const tabelaRegressiva = [
 // Calcula o imposto pela tabela progressiva
 function calcularImpostoProgressivo(baseCalculoAnual: number): number {
   const baseCalculoMensal = baseCalculoAnual / 12;
-  let impostoTotalMensal = 0;
-  let baseCalculoAcumulada = 0;
+  let impostoMensal = 0;
+  let aliquotaAplicavel = 0;
+  let parcelaDeduzirAplicavel = 0;
 
   for (const faixa of tabelaProgressivaIR) {
-    if (baseCalculoMensal > baseCalculoAcumulada) {
-      const limiteFaixa = faixa.limiteRendimento === Infinity ? baseCalculoMensal : faixa.limiteRendimento;
-      const valorNaFaixa = Math.min(baseCalculoMensal, limiteFaixa) - baseCalculoAcumulada;
-      impostoTotalMensal += valorNaFaixa * faixa.aliquota;
-      baseCalculoAcumulada += valorNaFaixa;
+    if (baseCalculoMensal <= faixa.limiteRendimento) {
+      aliquotaAplicavel = faixa.aliquota;
+      parcelaDeduzirAplicavel = faixa.parcelaDeduzir;
+      break;
     }
   }
-  return Math.max(0, impostoTotalMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
+
+  impostoMensal = (baseCalculoMensal * aliquotaAplicavel) - parcelaDeduzirAplicavel;
+  return Math.max(0, impostoMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
 }
 
 // Calcula o imposto pela tabela regressiva
@@ -113,7 +115,7 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
     // Para PGBL, o imposto é sobre o valor total acumulado, mas a alíquota é da renda marginal
     // A economia fiscal é calculada com base na alíquota marginal da renda bruta anual do usuário
     // O imposto sobre o resgate do PGBL é sobre o valor total, mas a alíquota aplicada é a da faixa de renda do usuário
-    impostoTotalPGBL = valorAcumuladoBruto * calcularAliquotaMarginal(rendaBrutaAnual);
+    impostoTotalPGBL = calcularImpostoProgressivo(valorAcumuladoBruto);
   } else {
     impostoTotalPGBL = calcularImpostoRegressivo(valorAcumuladoBruto, prazoAnos);
   }
@@ -127,7 +129,7 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   let impostoTotalVGBL: number;
   if (regimeTributacao === 'progressivo') {
     // Para VGBL, o imposto é sobre os rendimentos, e a alíquota aplicada é a da faixa de renda do usuário
-    impostoTotalVGBL = rendimentos * calcularAliquotaMarginal(rendaBrutaAnual);
+    impostoTotalVGBL = calcularImpostoProgressivo(rendimentos);
   } else {
     impostoTotalVGBL = calcularImpostoRegressivo(rendimentos, prazoAnos);
   }
@@ -160,15 +162,12 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
 // Calcula a alíquota marginal do IR para uma renda anual
 function calcularAliquotaMarginal(rendaAnual: number): number {
   const rendaMensal = rendaAnual / 12;
-  let aliquotaMarginal = 0;
   for (const faixa of tabelaProgressivaIR) {
-    if (rendaMensal > faixa.limiteRendimento) {
-      aliquotaMarginal = faixa.aliquota;
-    } else {
-      break;
+    if (rendaMensal <= faixa.limiteRendimento) {
+      return faixa.aliquota;
     }
   }
-  return aliquotaMarginal;
+  return 0; // Should not happen if Infinity is handled in the last bracket
 }
 
 // Função para gerar dados para gráfico de evolução
