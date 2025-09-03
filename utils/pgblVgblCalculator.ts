@@ -46,25 +46,20 @@ const tabelaRegressiva = [
 // Calcula o imposto pela tabela progressiva
 function calcularImpostoProgressivo(valor: number): number {
   const rendaMensal = valor / 12; // Assumindo que o valor é anual para fins de cálculo de IR
-  let imposto = 0;
-  let aliquotaAplicada = 0;
-  let parcelaDeduzir = 0;
+  let impostoMensal = 0;
 
+  // Encontra a faixa de renda correspondente
+  let faixaEncontrada = tabelaProgressivaIR[0];
   for (const faixa of tabelaProgressivaIR) {
-    if (rendaMensal <= faixa.limiteRendimento) {
-      aliquotaAplicada = faixa.aliquota;
-      parcelaDeduzir = faixa.parcelaDeduzir;
+    if (rendaMensal > faixa.limiteRendimento) {
+      faixaEncontrada = faixa;
+    } else {
       break;
     }
   }
-  // Se a renda for maior que a última faixa, usa a última alíquota e parcela a deduzir
-  if (aliquotaAplicada === 0 && rendaMensal > tabelaProgressivaIR[tabelaProgressivaIR.length - 2].limiteRendimento) {
-    aliquotaAplicada = tabelaProgressivaIR[tabelaProgressivaIR.length - 1].aliquota;
-    parcelaDeduzir = tabelaProgressivaIR[tabelaProgressivaIR.length - 1].parcelaDeduzir;
-  }
 
-  imposto = (rendaMensal * aliquotaAplicada) - parcelaDeduzir;
-  return Math.max(0, imposto * 12); // Retorna o imposto anual, garantindo que não seja negativo
+  impostoMensal = (rendaMensal * faixaEncontrada.aliquota) - faixaEncontrada.parcelaDeduzir;
+  return Math.max(0, impostoMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
 }
 
 // Calcula o imposto pela tabela regressiva
@@ -167,12 +162,15 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
 // Calcula a alíquota marginal do IR para uma renda anual
 function calcularAliquotaMarginal(rendaAnual: number): number {
   const rendaMensal = rendaAnual / 12;
+  let aliquotaMarginal = 0;
   for (const faixa of tabelaProgressivaIR) {
-    if (rendaMensal <= faixa.limiteRendimento) {
-      return faixa.aliquota;
+    if (rendaMensal > faixa.limiteRendimento) {
+      aliquotaMarginal = faixa.aliquota;
+    } else {
+      break;
     }
   }
-  return 0.275; // Alíquota máxima caso não se encaixe em nenhuma faixa (acima de 4664.68)
+  return aliquotaMarginal;
 }
 
 // Função para gerar dados para gráfico de evolução
