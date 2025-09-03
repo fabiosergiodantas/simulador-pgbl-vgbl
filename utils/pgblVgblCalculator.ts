@@ -44,22 +44,20 @@ const tabelaRegressiva = [
 ];
 
 // Calcula o imposto pela tabela progressiva
-function calcularImpostoProgressivo(valor: number): number {
-  const rendaMensal = valor / 12; // Assumindo que o valor é anual para fins de cálculo de IR
-  let impostoMensal = 0;
+function calcularImpostoProgressivo(baseCalculoAnual: number): number {
+  const baseCalculoMensal = baseCalculoAnual / 12;
+  let impostoTotalMensal = 0;
+  let baseCalculoAcumulada = 0;
 
-  // Encontra a faixa de renda correspondente
-  let faixaEncontrada = tabelaProgressivaIR[0];
   for (const faixa of tabelaProgressivaIR) {
-    if (rendaMensal > faixa.limiteRendimento) {
-      faixaEncontrada = faixa;
-    } else {
-      break;
+    if (baseCalculoMensal > baseCalculoAcumulada) {
+      const limiteFaixa = faixa.limiteRendimento === Infinity ? baseCalculoMensal : faixa.limiteRendimento;
+      const valorNaFaixa = Math.min(baseCalculoMensal, limiteFaixa) - baseCalculoAcumulada;
+      impostoTotalMensal += valorNaFaixa * faixa.aliquota;
+      baseCalculoAcumulada += valorNaFaixa;
     }
   }
-
-  impostoMensal = (rendaMensal * faixaEncontrada.aliquota) - faixaEncontrada.parcelaDeduzir;
-  return Math.max(0, impostoMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
+  return Math.max(0, impostoTotalMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
 }
 
 // Calcula o imposto pela tabela regressiva
