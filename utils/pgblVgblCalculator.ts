@@ -26,11 +26,11 @@ export interface SimulationResult {
 
 // Tabela progressiva do IR (2024) - Baseado em rendimento mensal
 const tabelaProgressivaIR = [
-  { limiteRendimento: 2112.00, aliquota: 0, parcelaDeduzir: 0 },
-  { limiteRendimento: 2826.65, aliquota: 0.075, parcelaDeduzir: 158.40 },
-  { limiteRendimento: 3751.05, aliquota: 0.15, parcelaDeduzir: 370.40 },
-  { limiteRendimento: 4664.68, aliquota: 0.225, parcelaDeduzir: 651.73 },
-  { limiteRendimento: Infinity, aliquota: 0.275, parcelaDeduzir: 884.96 }
+  { limiteRendimento: 26963.20, aliquota: 0, parcelaDeduzir: 0 },
+  { limiteRendimento: 33919.80, aliquota: 0.075, parcelaDeduzir: 2022.24 },
+  { limiteRendimento: 45012.60, aliquota: 0.15, parcelaDeduzir: 4566.23 },
+  { limiteRendimento: 55976.16, aliquota: 0.225, parcelaDeduzir: 7942.17 },
+  { limiteRendimento: Infinity, aliquota: 0.275, parcelaDeduzir: 10740.98 }
 ];
 
 // Tabela regressiva para previdência
@@ -45,21 +45,20 @@ const tabelaRegressiva = [
 
 // Calcula o imposto pela tabela progressiva
 function calcularImpostoProgressivo(baseCalculoAnual: number): number {
-  const baseCalculoMensal = baseCalculoAnual / 12;
-  let impostoMensal = 0;
+  let impostoAnual = 0;
   let aliquotaAplicavel = 0;
   let parcelaDeduzirAplicavel = 0;
 
   for (const faixa of tabelaProgressivaIR) {
-    if (baseCalculoMensal <= faixa.limiteRendimento) {
+    if (baseCalculoAnual <= faixa.limiteRendimento) {
       aliquotaAplicavel = faixa.aliquota;
       parcelaDeduzirAplicavel = faixa.parcelaDeduzir;
       break;
     }
   }
 
-  impostoMensal = (baseCalculoMensal * aliquotaAplicavel) - parcelaDeduzirAplicavel;
-  return Math.max(0, impostoMensal * 12); // Retorna o imposto anual, garantindo que não seja negativo
+  impostoAnual = (baseCalculoAnual * aliquotaAplicavel) - parcelaDeduzirAplicavel;
+  return Math.max(0, impostoAnual); // Retorna o imposto anual, garantindo que não seja negativo
 }
 
 // Calcula o imposto pela tabela regressiva
@@ -101,9 +100,10 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   const limiteDedução = rendaBrutaAnual * 0.12;
   const deducaoEfetiva = Math.min(contribuicaoAnual, limiteDedução);
   
-  // Economia fiscal anual do PGBL (baseada na alíquota marginal)
-  const aliquotaMarginal = calcularAliquotaMarginal(rendaBrutaAnual);
-  const economiaFiscalAnual = deducaoEfetiva * aliquotaMarginal;
+  // Economia fiscal anual do PGBL (baseada no novo cálculo de benefício fiscal)
+  const { beneficioFiscal: economiaFiscalAnual, aliquotaEfetiva: aliquotaEfetivaPGBL } = calcularBeneficioFiscal(rendaBrutaAnual, contribuicaoAnual);
+  console.log('Economia Fiscal Anual:', economiaFiscalAnual);
+  console.log('Alíquota Efetiva PGBL:', aliquotaEfetivaPGBL);
   const economiaFiscalTotal = economiaFiscalAnual * prazoAnos;
 
   // Valor acumulado bruto (mesmo para PGBL e VGBL)
@@ -159,15 +159,61 @@ export function simularPGBLvsVGBL(input: SimulationInput): SimulationResult {
   };
 }
 
-// Calcula a alíquota marginal do IR para uma renda anual
-function calcularAliquotaMarginal(rendaAnual: number): number {
-  const rendaMensal = rendaAnual / 12;
-  for (const faixa of tabelaProgressivaIR) {
-    if (rendaMensal <= faixa.limiteRendimento) {
-      return faixa.aliquota;
+// Calcula o benefício fiscal do PGBL
+function calcularBeneficioFiscal(rendaBrutaAnual: number, aporteAnual: number): {
+  beneficioFiscal: number;
+  aliquotaEfetiva: number;
+} {
+  let beneficioFiscal = 0;
+  const limiteDeducao = rendaBrutaAnual * 0.12;
+  const aporteEfetivo = Math.min(aporteAnual, limiteDeducao);
+
+  // Se não há aporte efetivo, não há benefício fiscal
+  if (aporteEfetivo <= 0) {
+    return {
+      beneficioFiscal: 0,
+      aliquotaEfetiva: 0
+    };
+  }
+
+  // Encontrar a faixa de IR da renda bruta anual
+  let indiceFaixaRenda = -1;
+  for (let i = 0; i < tabelaProgressivaIR.length; i++) {
+    if (rendaBrutaAnual <= tabelaProgressivaIR[i].limiteRendimento) {
+      indiceFaixaRenda = i;
+      break;
     }
   }
-  return 0; // Should not happen if Infinity is handled in the last bracket
+
+  // Se a renda bruta anual está abaixo da primeira faixa tributável, não há benefício fiscal
+  if (indiceFaixaRenda === 0 && tabelaProgressivaIR[0].aliquota === 0) {
+    return {
+      beneficioFiscal: 0,
+      aliquotaEfetiva: 0
+    };
+  }
+
+  let aporteRestante = aporteEfetivo;
+  for (let i = indiceFaixaRenda; i >= 0 && aporteRestante > 0; i--) {
+    const faixaAtual = tabelaProgressivaIR[i];
+    const limiteInferiorFaixa = i > 0 ? tabelaProgressivaIR[i - 1].limiteRendimento : 0;
+
+    // Base de cálculo na faixa atual antes da dedução
+    const baseNaFaixa = Math.max(0, Math.min(rendaBrutaAnual, faixaAtual.limiteRendimento) - limiteInferiorFaixa);
+
+    // Quanto do aporte efetivo pode ser deduzido nesta faixa
+    const deducaoNestaFaixa = Math.min(aporteRestante, baseNaFaixa);
+
+    beneficioFiscal += deducaoNestaFaixa * faixaAtual.aliquota;
+    aporteRestante -= deducaoNestaFaixa;
+  }
+
+  const aliquotaEfetiva = beneficioFiscal / aporteEfetivo;
+
+  return {
+    beneficioFiscal,
+    aliquotaEfetiva
+  };
 }
 
 // Função para gerar dados para gráfico de evolução
@@ -180,8 +226,7 @@ export function gerarDadosEvolucao(input: SimulationInput): Array<{
   economiaFiscalAcumulada: number;
 }> {
   const dados = [];
-  const economiaFiscalAnual = Math.min(input.contribuicaoAnual, input.rendaBrutaAnual * 0.12) * 
-                              calcularAliquotaMarginal(input.rendaBrutaAnual);
+  const { beneficioFiscal: economiaFiscalAnual } = calcularBeneficioFiscal(input.rendaBrutaAnual, input.contribuicaoAnual);
 
   for (let ano = 1; ano <= input.prazoAnos; ano++) {
     const valorBruto = calcularValorFuturoSerie(input.contribuicaoAnual, input.rentabilidadeAnual, ano);
